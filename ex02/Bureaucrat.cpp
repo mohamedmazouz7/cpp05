@@ -1,0 +1,91 @@
+#include "Bureaucrat.hpp"
+#include "AForm.hpp"
+
+Bureaucrat::Bureaucrat() : name("default"), grade(1) {}
+
+Bureaucrat::Bureaucrat(const std::string& name, int grade) : name(name), grade(grade)
+{
+    if (grade < 1)
+        throw GradeTooHighException();
+    if (grade > 150)
+        throw   GradeTooLowException();
+}
+
+Bureaucrat::Bureaucrat(const Bureaucrat& other) : name(other.name), grade(other.grade) {}
+
+Bureaucrat     &Bureaucrat::operator=(const Bureaucrat& other)
+{
+        if (this != &other)
+        {
+            this->grade = other.grade;
+        }
+        return *this;
+}
+
+Bureaucrat::~Bureaucrat() {}
+
+const std::string&  Bureaucrat::GetName() const
+{
+    return name;
+}
+
+int     Bureaucrat::GetGrade() const
+{
+    return grade;
+}
+
+void    Bureaucrat::incrementGrade()
+{
+    if ((grade - 1)  < 1)
+        throw GradeTooHighException();
+    grade -= 1;
+}
+
+void    Bureaucrat::signForm(AForm& f)
+{
+    try 
+    {
+        f.beSigned(*this);
+        std::cout << this->name << " signed " << f.GetName() << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << this->name << " couldn't sign " << f.GetName() << " because " << e.what() << std::endl;
+    }
+}
+
+void    Bureaucrat::executeForm(AForm const &form) const
+{
+    try
+    {
+        form.execute(*this);
+        std::cout << this->name << " executed " << form.GetName() << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << this->name << " couldn't executed " << form.GetName() << " because: " << e.what() << std::endl;
+    }
+}
+
+void    Bureaucrat::decrementGrade()
+{
+    if ((grade + 1) > 150)
+        throw GradeTooLowException();
+    grade += 1;
+}
+
+const char* Bureaucrat::GradeTooHighException::what() const throw()
+{
+    return "Grade is too high";
+}
+
+const char* Bureaucrat::GradeTooLowException::what() const throw()
+{
+    return "Grade is too low";
+}
+
+std::ostream&   operator<<(std::ostream& os, const Bureaucrat& bure)
+{
+    os << bure.GetName() << ", bureaucrat grade " << bure.GetGrade() << ".";
+    return os;
+}
